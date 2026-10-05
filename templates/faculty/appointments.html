@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Appointments{% endblock %}
+
+{% block page_heading %}
+Student Appointments
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+        <h5>
+            <i class="bi bi-calendar-check me-2"></i>
+            Appointment Requests
+        </h5>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+                    <th>Student</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for appointment in appointments %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ appointment.student.user.name }}
+                        </strong>
+
+                        <br>
+
+                        <small class="text-muted">
+                            {{ appointment.student.enrollment_no }}
+                        </small>
+
+                    </td>
+
+                    <td>
+                        {{ appointment.date }}
+                    </td>
+
+                    <td>
+                        {{ appointment.start_time.strftime("%I:%M %p") }}
+                        -
+                        {{ appointment.end_time.strftime("%I:%M %p") }}
+                    </td>
+
+                    <td>
+                        {{ appointment.reason }}
+                    </td>
+
+                    <td>
+
+                        <span class="status status-{{ appointment.status }}">
+                            {{ appointment.status|capitalize }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                    {% if appointment.status == "pending" %}
+
+                        <div class="d-flex gap-2">
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'faculty.update_appointment',
+                                    appointment_id=appointment.id,
+                                    action='accept'
+                                ) }}"
+                            >
+
+                                <button class="btn btn-sm btn-black">
+                                    Accept
+                                </button>
+
+                            </form>
+
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'faculty.update_appointment',
+                                    appointment_id=appointment.id,
+                                    action='reject'
+                                ) }}"
+                            >
+
+                                <button class="btn btn-sm btn-outline-black">
+                                    Reject
+                                </button>
+
+                            </form>
+
+                        </div>
+
+
+                    {% elif appointment.status == "accepted" %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'faculty.update_appointment',
+                                appointment_id=appointment.id,
+                                action='complete'
+                            ) }}"
+                        >
+
+                            <button class="btn btn-sm btn-black">
+                                Mark Completed
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <span class="text-muted">
+                            —
+                        </span>
+
+                    {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center py-5">
+
+                        No appointment requests.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

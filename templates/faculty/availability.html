@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Availability{% endblock %}
+
+{% block page_heading %}
+Availability
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <!-- ADD SLOT -->
+
+    <div class="col-lg-5">
+
+        <div class="form-card">
+
+            <h4 class="mb-1">
+                Add Availability
+            </h4>
+
+            <p class="text-muted">
+                Set a date and time when students can book an appointment.
+            </p>
+
+
+            <form method="POST">
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col">
+
+                        <label class="form-label">
+                            Start Time
+                        </label>
+
+                        <input
+                            type="time"
+                            name="start_time"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col">
+
+                        <label class="form-label">
+                            End Time
+                        </label>
+
+                        <input
+                            type="time"
+                            name="end_time"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button class="btn btn-black w-100 mt-4">
+
+                    <i class="bi bi-plus-circle me-2"></i>
+
+                    Add Slot
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- SLOTS -->
+
+    <div class="col-lg-7">
+
+        <div class="dashboard-card mt-0">
+
+            <div class="dashboard-card-header">
+
+                <h5>
+                    My Available Slots
+                </h5>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for slot in slots %}
+
+                        <tr>
+
+                            <td>
+                                {{ slot.date }}
+                            </td>
+
+                            <td>
+                                {{ slot.start_time.strftime("%I:%M %p") }}
+                                -
+                                {{ slot.end_time.strftime("%I:%M %p") }}
+                            </td>
+
+                            <td>
+
+                                <span class="status
+                                    {% if slot.status == 'available' %}
+                                        status-accepted
+                                    {% else %}
+                                        status-pending
+                                    {% endif %}
+                                ">
+                                    {{ slot.status|capitalize }}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+
+                            <td colspan="3"
+                                class="text-center py-5">
+
+                                No availability added yet.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
