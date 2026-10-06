@@ -1,124 +1,309 @@
 {% extends "base.html" %}
+{% block title %}Book Appointment - {{ faculty.user.name }}{% endblock %}
 
-{% block title %}Book Appointment{% endblock %}
+{% block extra_css %}
+<style>
+/* =========================================================
+   CLEAN MINIMAL CALENDAR UI
+========================================================= */
+.calendar-widget-card {
+    background: #ffffff;
+    border: 1px solid #eef0f3;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
 
-{% block page_heading %}
-Book Appointment
+/* Header: Selected Date & Nav Arrows */
+.cal-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.cal-selected-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.cal-selected-display strong {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111111;
+}
+
+.cal-selected-display span {
+    font-size: 14px;
+    color: #888888;
+}
+
+.cal-nav-arrows {
+    display: flex;
+    gap: 6px;
+}
+
+.arrow-btn {
+    border: none;
+    background: transparent;
+    color: #8a92a0;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Weekday Row (Sun, Mon, ...) */
+.cal-weekday-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8a92a0;
+    margin-bottom: 12px;
+}
+
+/* Calendar Days Grid */
+.cal-numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    row-gap: 8px;
+}
+
+.cal-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 42px;
+}
+
+/* Circular Date Buttons */
+.cal-day-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s ease, color 0.15s ease;
+    padding: 0;
+}
+
+.cal-day-num:hover:not(:disabled) {
+    background-color: #f1f3f5;
+}
+
+/* Solid Black Active Selected State */
+.cal-day-num.active {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Disabled & Past Dates */
+.cal-day-num.disabled,
+.cal-day-num:disabled {
+    color: #d1d5db;
+    cursor: not-allowed;
+    background: transparent;
+}
+
+/* Slot Dot Indicator Under Date */
+.slot-indicator-dot {
+    width: 4px;
+    height: 4px;
+    background-color: #111111;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 3px;
+}
+
+.cal-day-num.active .slot-indicator-dot {
+    background-color: #ffffff;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-
-<div class="mb-4">
-
-    <h4>
-        {{ faculty.user.name }}
-    </h4>
-
-    <p class="text-muted mb-0">
-        {{ faculty.designation }} · {{ faculty.department }}
-    </p>
-
-</div>
-
-
-<div class="dashboard-card">
-
-    <div class="dashboard-card-header">
-
-        <h5>
-            <i class="bi bi-calendar3 me-2"></i>
-            Available Slots
-        </h5>
-
+<div class="page-container">
+    <!-- Faculty Profile Header -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">{{ faculty.user.name }}</h3>
+        <p class="text-muted mb-2">{{ faculty.designation }} &bull; {{ faculty.department }}</p>
+        {% if faculty.is_available %}
+            <span class="badge bg-success">Available for bookings</span>
+        {% else %}
+            <span class="badge bg-secondary">Busy &bull; bookings are paused</span>
+        {% endif %}
     </div>
 
-
-    <div class="row g-3">
-
-    {% for slot in slots %}
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="border rounded-3 p-3">
-
-                <div class="mb-2">
-
-                    <strong>
-                        {{ slot.date }}
-                    </strong>
-
-                </div>
-
-                <div class="text-muted mb-3">
-
-                    <i class="bi bi-clock me-1"></i>
-
-                    {{ slot.start_time.strftime("%I:%M %p") }}
-                    -
-                    {{ slot.end_time.strftime("%I:%M %p") }}
-
-                </div>
-
-
-                <form
-                    method="POST"
-                    action="{{ url_for(
-                        'student.book_appointment',
-                        availability_id=slot.id
-                    ) }}"
-                >
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Reason for appointment
-                        </label>
-
-                        <textarea
-                            name="reason"
-                            class="form-control"
-                            rows="3"
-                            placeholder="Enter your reason..."
-                            required
-                        ></textarea>
-
+    <div class="row g-4 align-items-start">
+        <!-- LEFT COLUMN: Clean Minimalist Calendar Widget -->
+        <div class="col-lg-5 col-md-6">
+            <div class="calendar-widget-card">
+                <!-- Top Header: e.g. 10 Mar, 23 Wednesday -->
+                <div class="cal-top-header">
+                    <div class="cal-selected-display">
+                        <strong id="calHeaderDate">{{ today.strftime('%d %b, %y') }}</strong>
+                        <span id="calHeaderDay">{{ today.strftime('%A') }}</span>
                     </div>
+                    <div class="cal-nav-arrows">
+                        <button type="button" class="arrow-btn" title="Previous Month"><i class="bi bi-chevron-left"></i></button>
+                        <button type="button" class="arrow-btn" title="Next Month"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                </div>
 
+                <!-- Weekday Columns -->
+                <div class="cal-weekday-row">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
 
-                    <button class="btn btn-black w-100">
+                <!-- 7-Column Days Grid -->
+                <div class="cal-numbers-grid">
+                    {% for week in month_days %}
+                        {% for day in week %}
+                            {% set date_str = day.isoformat() %}
+                            {% set day_slots = slots_by_date.get(date_str, []) %}
+                            {% set is_current_month = (day.month == today.month) %}
+                            {% set is_past = (day < today) %}
+                            {% set is_out_of_range = (day > max_bookable_date) %}
+                            {% set is_disabled = is_past or is_out_of_range or not is_current_month %}
 
-                        <i class="bi bi-calendar-plus me-2"></i>
-
-                        Book Appointment
-
-                    </button>
-
-                </form>
-
+                            <div class="cal-cell">
+                                {% if is_current_month %}
+                                    <button 
+                                        type="button" 
+                                        class="cal-day-num {% if date_str == today_str %}active{% endif %} {% if is_disabled %}disabled{% endif %}"
+                                        data-date="{{ date_str }}"
+                                        data-formatted-date="{{ day.strftime('%d %b, %y') }}"
+                                        data-formatted-day="{{ day.strftime('%A') }}"
+                                        data-full-title="{{ day.strftime('%A, %d %B %Y') }}"
+                                        {% if is_disabled %}disabled{% else %}onclick="pickDate('{{ date_str }}', this)"{% endif %}>
+                                        <span>{{ day.day }}</span>
+                                        {% if not is_disabled and day_slots|length > 0 %}
+                                            <span class="slot-indicator-dot"></span>
+                                        {% endif %}
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
-
         </div>
 
-    {% else %}
+        <!-- RIGHT COLUMN: Available Slots for Selected Date -->
+        <div class="col-lg-7 col-md-6">
+            <div class="dashboard-card mt-0">
+                <div class="dashboard-card-header d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0">Available Time Slots</h5>
+                        <small class="text-muted" id="selectedSlotsDateTitle">{{ today.strftime('%A, %d %B %Y') }}</small>
+                    </div>
+                </div>
 
-        <div class="text-center py-5">
+                <div id="slotsContainer">
+                    {% for date_str, day_slots in slots_by_date.items() %}
+                    <div class="slots-group-panel {% if date_str != today_str %}d-none{% endif %}" id="group-{{ date_str }}">
+                        {% if day_slots %}
+                            <div class="row g-3">
+                                {% for slot in day_slots %}
+                                {% set remaining = slot.capacity - slot.booked_count %}
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-3 h-100 bg-white shadow-sm">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong class="fs-6">{{ slot.period.name }}</strong>
+                                            {% if remaining <= 0 %}
+                                                <span class="badge bg-dark">Full</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ remaining }} seats left</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-muted small mb-3">
+                                            <i class="bi bi-clock me-1"></i>
+                                            {{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}
+                                        </div>
 
-            <i class="bi bi-calendar-x fs-1"></i>
+                                        {% if faculty.is_available and remaining > 0 %}
+                                            <form method="POST" action="{{ url_for('student.book_appointment', slot_id=slot.id) }}">
+                                                <div class="mb-3">
+                                                    <label class="form-label small text-muted" for="reason-{{ slot.id }}">Reason for booking</label>
+                                                    <textarea id="reason-{{ slot.id }}" name="reason" class="form-control form-control-sm" rows="2" maxlength="500" placeholder="State reason..." required></textarea>
+                                                </div>
+                                                <button class="btn btn-black btn-sm w-100" type="submit">Book Slot</button>
+                                            </form>
+                                        {% elif not faculty.is_available %}
+                                            <button class="btn btn-outline-secondary btn-sm w-100" disabled>Faculty Busy</button>
+                                        {% else %}
+                                            <button class="btn btn-outline-secondary btn-sm w-100" disabled>Slot Full</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                                <h6 class="mt-3 text-muted">No free periods available for this date.</h6>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
 
-            <h5 class="mt-3">
-                No available slots
-            </h5>
-
-            <p class="text-muted">
-                This faculty member currently has no available appointments.
-            </p>
-
+                    <!-- Fallback if a date in range has no entries -->
+                    <div id="noSlotsFallback" class="text-center py-5 d-none">
+                        <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                        <h6 class="mt-3 text-muted">No free periods scheduled for this date.</h6>
+                    </div>
+                </div>
+            </div>
         </div>
-
-    {% endfor %}
-
     </div>
-
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+function pickDate(dateStr, btnElement) {
+    // 1. Switch active circular indicator
+    document.querySelectorAll('.cal-day-num').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    // 2. Update widget header (e.g., 06 Oct, 26 Tuesday)
+    document.getElementById('calHeaderDate').innerText = btnElement.getAttribute('data-formatted-date');
+    document.getElementById('calHeaderDay').innerText = btnElement.getAttribute('data-formatted-day');
+
+    // 3. Update right side panel title
+    document.getElementById('selectedSlotsDateTitle').innerText = btnElement.getAttribute('data-full-title');
+
+    // 4. Toggle slots container
+    document.querySelectorAll('.slots-group-panel').forEach(panel => panel.classList.add('d-none'));
+    const targetGroup = document.getElementById('group-' + dateStr);
+    const fallback = document.getElementById('noSlotsFallback');
+    
+    if (targetGroup) {
+        targetGroup.classList.remove('d-none');
+        fallback.classList.add('d-none');
+    } else {
+        fallback.classList.remove('d-none');
+    }
+}
+</script>
 {% endblock %}

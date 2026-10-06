@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Weekly Timetable
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-container">
+
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="timetable-header">
+
+        <div class="timetable-title">
+
+            <h1>
+                Weekly Timetable
+            </h1>
+
+            <p>
+                Manage your weekly lecture schedule
+            </p>
+
+        </div>
+
+
+        <!-- Availability -->
+
+        <div class="timetable-actions">
+
+            {% if faculty.is_available %}
+
+                <span class="availability-badge available">
+
+                    <span class="availability-dot"></span>
+
+                    Available
+
+                </span>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('faculty.toggle_availability') }}"
+                    class="m-0"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn-outline-black"
+                    >
+                        Set Busy
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <span class="availability-badge busy">
+
+                    <span class="availability-dot"></span>
+
+                    Busy
+
+                </span>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('faculty.toggle_availability') }}"
+                    class="m-0"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn-black"
+                    >
+                        Set Available
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FLASH MESSAGES
+    ====================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="mb-4">
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="alert
+                        {% if category == 'success' %}
+                            alert-success
+                        {% elif category == 'danger' %}
+                            alert-danger
+                        {% elif category == 'warning' %}
+                            alert-warning
+                        {% else %}
+                            alert-info
+                        {% endif %}
+                        border-0 rounded-3"
+                        role="alert"
+                    >
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
+         AVAILABILITY INFORMATION
+    ====================================================== -->
+
+    {% if not faculty.is_available %}
+
+        <div class="alert alert-warning rounded-3 mb-4">
+
+            <div class="d-flex align-items-start gap-2">
+
+                <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+
+                <div>
+
+                    <strong>
+                        You are currently Busy.
+                    </strong>
+
+                    <div class="small mt-1">
+
+                        Students cannot book your free periods
+                        while your status is Busy.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         ADD LECTURE
+    ====================================================== -->
+
+    <div class="lecture-form-card">
+
+        <div class="lecture-form-title">
+
+            <h5>
+                Add Lecture
+            </h5>
+
+            <p>
+                Add your regular weekly lectures to calculate
+                appointment availability automatically.
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('faculty.add_timetable') }}"
+        >
+
+            <div class="row g-3 align-items-end">
+
+
+                <!-- Day -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="day_of_week"
+                        class="form-label"
+                    >
+                        Day
+                    </label>
+
+                    <select
+                        name="day_of_week"
+                        id="day_of_week"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="" selected disabled>
+                            Select Day
+                        </option>
+
+                        {% for day_number, day_name in days %}
+
+                            <option value="{{ day_number }}">
+                                {{ day_name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Period -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="period_id"
+                        class="form-label"
+                    >
+                        Period
+                    </label>
+
+                    <select
+                        name="period_id"
+                        id="period_id"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="" selected disabled>
+                            Select Period
+                        </option>
+
+                        {% for period in periods %}
+
+                            <option value="{{ period.id }}">
+
+                                {{ period.name }}
+
+                                —
+                                {{ period.start_time.strftime("%H:%M") }}
+                                -
+                                {{ period.end_time.strftime("%H:%M") }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Subject -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="subject"
+                        class="form-label"
+                    >
+                        Subject
+                    </label>
+
+                    <input
+                        type="text"
+                        name="subject"
+                        id="subject"
+                        class="form-control"
+                        placeholder="e.g. Database Management"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Submit -->
+
+                <div class="col-12">
+
+                    <button
+                        type="submit"
+                        class="btn-black"
+                    >
+
+                        <i class="bi bi-plus-lg me-1"></i>
+
+                        Add Lecture
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         WEEKLY SCHEDULE
+    ====================================================== -->
+
+    <div class="dashboard-card timetable-card">
+
+
+        <!-- Title -->
+
+        <div class="timetable-card-title">
+
+            <h5>
+                My Weekly Schedule
+            </h5>
+
+            <p>
+                Your free periods will automatically become
+                appointment slots.
+            </p>
+
+        </div>
+
+
+        <!-- Timetable -->
+
+        <div class="timetable-wrapper">
+
+            <table class="timetable">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="time-column">
+                            Time
+                        </th>
+
+
+                        {% for day_number, day_name in days %}
+
+                            <th>
+                                {{ day_name }}
+                            </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for period in periods %}
+
+                        <tr>
+
+
+                            <!-- Period / Time -->
+
+                            <td class="time-column">
+
+                                <span class="period-name">
+                                    {{ period.name }}
+                                </span>
+
+                                <span class="period-time">
+
+                                    {{ period.start_time.strftime("%H:%M") }}
+
+                                    -
+
+                                    {{ period.end_time.strftime("%H:%M") }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Days -->
+
+                            {% for day_number, day_name in days %}
+
+                                {% set entry =
+                                    timetable_map.get(
+                                        (day_number, period.id)
+                                    )
+                                %}
+
+
+                                {% if entry %}
+
+                                    <!-- Lecture -->
+
+                                    <td class="lecture-cell">
+
+                                        <div class="lecture-subject">
+
+                                            {{ entry.subject }}
+
+                                        </div>
+
+
+                                        <div class="lecture-label">
+
+                                            <i class="bi bi-book me-1"></i>
+
+                                            Lecture
+
+                                        </div>
+
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'faculty.delete_timetable',
+                                                entry_id=entry.id
+                                            ) }}"
+                                            class="m-0"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="remove-btn"
+                                                onclick="return confirm(
+                                                    'Remove this lecture from your timetable?'
+                                                );"
+                                            >
+
+                                                <i class="bi bi-trash"></i>
+
+                                                Remove
+
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+
+                                {% else %}
+
+                                    <!-- Free -->
+
+                                    <td class="free-cell">
+
+                                        <span class="free-badge">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Free
+
+                                        </span>
+
+                                    </td>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- Legend -->
+
+        <div class="d-flex flex-wrap gap-4 mt-3 small text-muted">
+
+            <div class="d-flex align-items-center gap-2">
+
+                <span class="free-badge">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    Free
+
+                </span>
+
+                <span>
+                    Available for appointments
+                </span>
+
+            </div>
+
+
+            <div class="d-flex align-items-center gap-2">
+
+                <span class="status status-completed">
+
+                    Lecture
+
+                </span>
+
+                <span>
+                    Not available for appointments
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

@@ -32,7 +32,17 @@ class Faculty(db.Model):
         db.String(200)
     )
 
+    # Faculty can turn appointment booking ON/OFF
+    is_available = db.Column(
+        db.Boolean,
+        default=True,
+        nullable=False
+    )
+
     user = db.relationship(
         "User",
         backref=db.backref("faculty", uselist=False)
     )
+
+    def __repr__(self):
+        return f"<Faculty {self.id}>"

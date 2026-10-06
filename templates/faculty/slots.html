@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <div class="page-title">
+            Appointment Slots
+        </div>
+
+        <div class="text-muted">
+            Automatically generated from your weekly timetable
+        </div>
+    </div>
+
+    <div>
+
+        {% if faculty.is_available %}
+
+        <span class="availability-badge available">
+            <span class="availability-dot"></span>
+            Available
+        </span>
+
+        {% else %}
+
+        <span class="availability-badge busy">
+            <span class="availability-dot"></span>
+            Busy
+        </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+{% if not faculty.is_available %}
+
+<div class="alert alert-warning border-0 shadow-sm">
+
+    <strong>You are currently Busy.</strong>
+
+    Students cannot book your appointment slots until you
+    switch your status back to Available.
+
+</div>
+
+{% endif %}
+
+
+<div class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+        <div>
+            <h5 class="dashboard-card-title">
+                Upcoming Appointment Slots
+            </h5>
+
+            <p class="text-muted mb-0">
+                Maximum 5 students can book one slot.
+            </p>
+        </div>
+
+    </div>
+
+
+    {% if slots %}
+
+    <div class="table-responsive">
+
+        <table class="table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Period</th>
+                    <th>Time</th>
+                    <th>Bookings</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for slot in slots %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ slot.date.strftime('%d %b %Y') }}
+                        </strong>
+                    </td>
+
+
+                    <td>
+                        {{ slot.period.name }}
+                    </td>
+
+
+                    <td>
+
+                        {{ slot.period.start_time.strftime('%I:%M %p') }}
+                        -
+                        {{ slot.period.end_time.strftime('%I:%M %p') }}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+                            {{ slot.booked_count }}/{{ slot.capacity }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if slot.is_full %}
+
+                        <span class="badge bg-dark">
+                            Full
+                        </span>
+
+                        {% elif not faculty.is_available %}
+
+                        <span class="badge bg-secondary">
+                            Busy
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-success">
+                            Available
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <h5>No appointment slots found</h5>
+
+        <p>
+            Add your weekly lectures first. The system will
+            automatically calculate free periods.
+        </p>
+
+        <a
+            href="{{ url_for('faculty.timetable') }}"
+            class="btn btn-black"
+        >
+            Manage Timetable
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

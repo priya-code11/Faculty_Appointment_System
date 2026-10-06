@@ -1,150 +1,696 @@
 {% extends "base.html" %}
 
-{% block title %}Faculty Dashboard{% endblock %}
 
-{% block page_heading %}
+{% block title %}
 Faculty Dashboard
 {% endblock %}
 
+
 {% block content %}
 
-<div class="welcome-card">
+<div class="page-container">
 
-    <div class="d-flex align-items-center gap-3">
 
-        <div class="welcome-icon">
-            <i class="bi bi-person-badge"></i>
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-title">
+
+            <h1>
+                Faculty Dashboard
+            </h1>
+
+            <p>
+                Manage your timetable and appointment availability
+            </p>
+
         </div>
+
+
+        <!-- Availability -->
+
+        <div class="page-actions">
+
+            {% if faculty.is_available %}
+
+                <span class="availability-badge available">
+
+                    <span class="availability-dot"></span>
+
+                    Available
+
+                </span>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('faculty.toggle_availability') }}"
+                    class="m-0"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn-outline-black"
+                    >
+                        Set Busy
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <span class="availability-badge busy">
+
+                    <span class="availability-dot"></span>
+
+                    Busy
+
+                </span>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('faculty.toggle_availability') }}"
+                    class="m-0"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn-black"
+                    >
+                        Set Available
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         WELCOME CARD
+    ====================================================== -->
+
+    <div class="welcome-card">
 
         <div>
 
             <h3>
-                Welcome, {{ user.name }}!
+                Welcome, {{ current_user.name }} 👋
             </h3>
 
-            <p class="text-muted mb-0">
-                Manage your availability and student appointments.
+            <p class="mb-0">
+                Manage your weekly teaching schedule and
+                appointment availability from here.
             </p>
 
         </div>
 
+
+        <div class="welcome-icon">
+
+            <i class="bi bi-person-badge"></i>
+
+        </div>
+
     </div>
 
-</div>
 
+    <!-- =====================================================
+         AVAILABILITY WARNING
+    ====================================================== -->
 
-<div class="row g-3">
+    {% if not faculty.is_available %}
 
-    <div class="col-md-4">
+        <div class="alert alert-warning rounded-3 mb-4">
 
-        <div class="stat-card">
+            <div class="d-flex align-items-start gap-2">
 
-            <div class="stat-icon">
-                <i class="bi bi-calendar3"></i>
+                <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+
+                <div>
+
+                    <strong>
+                        You are currently Busy.
+                    </strong>
+
+                    <div class="small mt-1">
+
+                        Students cannot book appointments with you
+                        while your status is Busy.
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <h6>Availability</h6>
-
-            <h2>
-                {{ user.faculty.availability_slots|length }}
-            </h2>
-
         </div>
 
-    </div>
+    {% else %}
 
+        <div class="alert alert-success rounded-3 mb-4">
 
-    <div class="col-md-4">
+            <div class="d-flex align-items-start gap-2">
 
-        <div class="stat-card">
+                <i class="bi bi-check-circle-fill mt-1"></i>
 
-            <div class="stat-icon">
-                <i class="bi bi-calendar-check"></i>
+                <div>
+
+                    <strong>
+                        You are Available.
+                    </strong>
+
+                    <div class="small mt-1">
+
+                        Students can book your free timetable
+                        periods.
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <h6>Appointments</h6>
-
-            <h2>
-                {{ user.faculty.appointments|length }}
-            </h2>
-
         </div>
 
-    </div>
+    {% endif %}
 
 
-    <div class="col-md-4">
 
-        <div class="stat-card">
+    <!-- =====================================================
+         QUICK ACTIONS
+    ====================================================== -->
 
-            <div class="stat-icon">
-                <i class="bi bi-hourglass-split"></i>
+    <div class="row g-3 mb-4">
+
+
+        <!-- Timetable -->
+
+        <div class="col-md-6 col-xl-4">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-calendar3"></i>
+
+                </div>
+
+                <h6>
+                    Weekly Timetable
+                </h6>
+
+                <p class="text-muted small mb-3">
+
+                    Add and manage your regular weekly
+                    lecture periods.
+
+                </p>
+
+
+                <a
+                    href="{{ url_for('faculty.timetable') }}"
+                    class="btn-black"
+                >
+
+                    <i class="bi bi-calendar3 me-1"></i>
+
+                    Manage Timetable
+
+                </a>
+
             </div>
 
-            <h6>Pending</h6>
+        </div>
 
-            <h2>
-                {{ user.faculty.appointments
-                    |selectattr("status", "equalto", "pending")
-                    |list
-                    |length }}
-            </h2>
+
+        <!-- Availability -->
+
+        <div class="col-md-6 col-xl-4">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    {% if faculty.is_available %}
+
+                        <i class="bi bi-check-circle"></i>
+
+                    {% else %}
+
+                        <i class="bi bi-pause-circle"></i>
+
+                    {% endif %}
+
+                </div>
+
+
+                <h6>
+                    Appointment Availability
+                </h6>
+
+
+                {% if faculty.is_available %}
+
+                    <p class="text-muted small mb-3">
+
+                        Students can book your free periods.
+
+                    </p>
+
+                {% else %}
+
+                    <p class="text-muted small mb-3">
+
+                        Booking is currently disabled.
+
+                    </p>
+
+                {% endif %}
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('faculty.toggle_availability') }}"
+                >
+
+                    {% if faculty.is_available %}
+
+                        <button
+                            type="submit"
+                            class="btn-outline-black"
+                        >
+
+                            <i class="bi bi-pause-circle me-1"></i>
+
+                            Set Busy
+
+                        </button>
+
+                    {% else %}
+
+                        <button
+                            type="submit"
+                            class="btn-black"
+                        >
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Set Available
+
+                        </button>
+
+                    {% endif %}
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- Appointment Slots -->
+
+        <div class="col-md-6 col-xl-4">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-clock"></i>
+
+                </div>
+
+                <h6>
+                    Appointment Slots
+                </h6>
+
+                <p class="text-muted small mb-3">
+
+                    Free timetable periods will become
+                    appointment slots automatically.
+
+                </p>
+
+
+                <span class="text-muted small">
+
+                    <i class="bi bi-info-circle me-1"></i>
+
+                    Coming in Step 3
+
+                </span>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
 
-<div class="row g-3 mt-1">
+    <!-- =====================================================
+         FACULTY PROFILE
+    ====================================================== -->
 
-    <div class="col-md-6">
+    <div class="dashboard-card">
 
-        <div class="dashboard-card">
 
-            <h5>
-                Manage Availability
-            </h5>
+        <div class="dashboard-card-header">
 
-            <p class="text-muted">
-                Add and manage the dates and times when students can meet you.
-            </p>
+            <div>
 
-            <a
-                href="{{ url_for('faculty.availability') }}"
-                class="btn btn-black"
-            >
-                Manage Availability
-            </a>
+                <h5>
+                    Faculty Profile
+                </h5>
+
+                <p>
+                    Your registered faculty information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="row g-4">
+
+
+            <!-- Name -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="faculty-avatar">
+
+                        {{ current_user.name[0]|upper }}
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Name
+                        </div>
+
+                        <div class="fw-semibold">
+                            {{ current_user.name }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Email -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div>
+
+                    <div class="text-muted small">
+                        Email
+                    </div>
+
+                    <div class="fw-semibold">
+                        {{ current_user.email }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Department -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div>
+
+                    <div class="text-muted small">
+                        Department
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        {{ faculty.department }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Designation -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div>
+
+                    <div class="text-muted small">
+                        Designation
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        {{ faculty.designation }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Specialization -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div>
+
+                    <div class="text-muted small">
+                        Specialization
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        {% if faculty.specialization %}
+
+                            {{ faculty.specialization }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not specified
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Current Status -->
+
+            <div class="col-md-6 col-lg-4">
+
+                <div>
+
+                    <div class="text-muted small">
+                        Current Status
+                    </div>
+
+
+                    {% if faculty.is_available %}
+
+                        <span class="availability-badge available mt-1">
+
+                            <span class="availability-dot"></span>
+
+                            Available
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="availability-badge busy mt-1">
+
+                            <span class="availability-dot"></span>
+
+                            Busy
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
 
-    <div class="col-md-6">
 
-        <div class="dashboard-card">
+    <!-- =====================================================
+         HOW THE SYSTEM WORKS
+    ====================================================== -->
 
-            <h5>
-                Student Appointments
-            </h5>
+    <div class="dashboard-card">
 
-            <p class="text-muted">
-                Review appointment requests and update their status.
-            </p>
 
-            <a
-                href="{{ url_for('faculty.appointments') }}"
-                class="btn btn-outline-black"
-            >
-                View Appointments
-            </a>
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <h5>
+                    How Appointment Availability Works
+                </h5>
+
+                <p>
+                    The system automatically finds your free periods.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="row g-3">
+
+
+            <!-- Step 1 -->
+
+            <div class="col-md-6 col-lg-3">
+
+                <div class="p-3 border rounded-3 h-100">
+
+                    <div class="stat-icon mb-3">
+
+                        <i class="bi bi-calendar3"></i>
+
+                    </div>
+
+                    <h6>
+                        1. Add Timetable
+                    </h6>
+
+                    <p class="small text-muted mb-0">
+
+                        Add your regular weekly lectures
+                        and their periods.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Step 2 -->
+
+            <div class="col-md-6 col-lg-3">
+
+                <div class="p-3 border rounded-3 h-100">
+
+                    <div class="stat-icon mb-3">
+
+                        <i class="bi bi-search"></i>
+
+                    </div>
+
+                    <h6>
+                        2. Find Free Periods
+                    </h6>
+
+                    <p class="small text-muted mb-0">
+
+                        The system identifies periods where
+                        you do not have a lecture.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Step 3 -->
+
+            <div class="col-md-6 col-lg-3">
+
+                <div class="p-3 border rounded-3 h-100">
+
+                    <div class="stat-icon mb-3">
+
+                        <i class="bi bi-clock"></i>
+
+                    </div>
+
+                    <h6>
+                        3. Create Slots
+                    </h6>
+
+                    <p class="small text-muted mb-0">
+
+                        Free periods become appointment slots
+                        for students.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Step 4 -->
+
+            <div class="col-md-6 col-lg-3">
+
+                <div class="p-3 border rounded-3 h-100">
+
+                    <div class="stat-icon mb-3">
+
+                        <i class="bi bi-people"></i>
+
+                    </div>
+
+                    <h6>
+                        4. Student Booking
+                    </h6>
+
+                    <p class="small text-muted mb-0">
+
+                        Up to 5 students can book one
+                        appointment slot.
+
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
+
+
 
 </div>
 

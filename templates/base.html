@@ -1,132 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Faculty Appointment System{% endblock %}</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <!-- Bootstrap -->
+    <title>
+        {% block title %}
+            Faculty Appointment System
+        {% endblock %}
+    </title>
+
+
+    <!-- Bootstrap 5 -->
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+
     <!-- Bootstrap Icons -->
+
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+
+    <!-- Google Font -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
-    <!-- Custom CSS -->
+
+    <!-- Project CSS -->
+
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
+
+
+    {% block extra_css %}
+    {% endblock %}
+
 </head>
+
 
 <body>
 
+
 {% if current_user.is_authenticated %}
+
 
 <div class="app-layout">
 
-    <!-- SIDEBAR -->
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
     <aside class="sidebar">
 
+
+        <!-- Brand -->
+
         <div class="brand">
+
             <div class="brand-icon">
-                <i class="bi bi-mortarboard-fill"></i>
+
+                <i class="bi bi-calendar-check"></i>
+
             </div>
 
+
             <div>
-                <h5>Indus University</h5>
-                <small>Faculty Appointment</small>
+
+                <h5>
+                    Faculty Appointment
+                </h5>
+
+                <small>
+                    Booking System
+                </small>
+
             </div>
+
         </div>
+
 
         <hr>
 
+
+        <!-- Navigation -->
+
         <nav class="sidebar-nav">
+
+
+            <div class="sidebar-nav-label">
+                Main
+            </div>
+
+
+            <!-- =================================================
+                 STUDENT NAVIGATION
+            ================================================== -->
 
             {% if current_user.role == "student" %}
 
-            <a href="{{ url_for('student.dashboard') }}"
-               class="nav-item">
-                <i class="bi bi-grid-fill"></i>
-                <span>Dashboard</span>
-            </a>
 
-            <a href="{{ url_for('student.faculty_list') }}"
-               class="nav-item">
-                <i class="bi bi-people"></i>
-                <span>Faculty</span>
-            </a>
+                <a
+                    href="{{ url_for('student.dashboard') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'student.dashboard' %}
+                        active
+                    {% endif %}"
+                >
 
-            <a href="{{ url_for('student.appointments') }}"
-               class="nav-item">
-                <i class="bi bi-calendar-check"></i>
-                <span>Appointments</span>
-            </a>
+                    <i class="bi bi-grid-1x2"></i>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('student.faculty_list') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'student.faculty_list' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-people"></i>
+
+                    <span>
+                        Faculty
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('student.appointments') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'student.appointments' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-calendar-event"></i>
+
+                    <span>
+                        My Appointments
+                    </span>
+
+                </a>
+
+
+            <!-- =================================================
+                 FACULTY NAVIGATION
+            ================================================== -->
 
             {% elif current_user.role == "faculty" %}
 
-            <a href="{{ url_for('faculty.dashboard') }}"
-               class="nav-item">
-                <i class="bi bi-grid-fill"></i>
-                <span>Dashboard</span>
-            </a>
 
-            <a href="{{ url_for('faculty.availability') }}"
-               class="nav-item">
-                <i class="bi bi-calendar3"></i>
-                <span>Availability</span>
-            </a>
+                <a
+                    href="{{ url_for('faculty.dashboard') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'faculty.dashboard' %}
+                        active
+                    {% endif %}"
+                >
 
-            <a href="{{ url_for('faculty.appointments') }}"
-               class="nav-item">
-                <i class="bi bi-calendar-check"></i>
-                <span>Appointments</span>
-            </a>
+                    <i class="bi bi-grid-1x2"></i>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('faculty.timetable') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'faculty.timetable' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-calendar3"></i>
+
+                    <span>
+                        Weekly Timetable
+                    </span>
+
+                </a>
+                <a href="{{ url_for('faculty.appointment_slots') }}" class="nav-item {% if request.endpoint == 'faculty.appointment_slots' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Appointment Slots</span>
+                </a>
+                <a href="{{ url_for('faculty.appointments') }}" class="nav-item {% if request.endpoint == 'faculty.appointments' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Appointment Requests</span>
+                </a>
+
+                <!--
+                    Appointment Slots will be added in Step 3
+                    after the automatic slot-generation route
+                    is implemented.
+                -->
+
+
+            <!-- =================================================
+                 ADMIN NAVIGATION
+            ================================================== -->
 
             {% elif current_user.role == "admin" %}
 
-            <a href="{{ url_for('admin.dashboard') }}"
-               class="nav-item">
-                <i class="bi bi-grid-fill"></i>
-                <span>Dashboard</span>
-            </a>
 
-            <a href="{{ url_for('admin.students') }}"
-               class="nav-item">
-                <i class="bi bi-mortarboard"></i>
-                <span>Students</span>
-            </a>
+                <a
+                    href="{{ url_for('admin.dashboard') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'admin.dashboard' %}
+                        active
+                    {% endif %}"
+                >
 
-            <a href="{{ url_for('admin.faculty') }}"
-               class="nav-item">
-                <i class="bi bi-person-badge"></i>
-                <span>Faculty</span>
-            </a>
+                    <i class="bi bi-grid-1x2"></i>
 
-            <a href="{{ url_for('admin.appointments') }}"
-               class="nav-item">
-                <i class="bi bi-calendar-check"></i>
-                <span>Appointments</span>
-            </a>
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin.students') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'admin.students' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-mortarboard"></i>
+
+                    <span>
+                        Students
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin.faculty') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'admin.faculty' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-person-badge"></i>
+
+                    <span>
+                        Faculty
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin.appointments') }}"
+                    class="nav-item
+                    {% if request.endpoint == 'admin.appointments' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <i class="bi bi-calendar-event"></i>
+
+                    <span>
+                        Appointments
+                    </span>
+
+                </a>
+
 
             {% endif %}
 
         </nav>
 
+
+        <!-- =====================================================
+             SIDEBAR USER
+        ====================================================== -->
+
         <div class="sidebar-bottom">
 
-            <a href="{{ url_for('auth.logout') }}"
-               class="nav-item logout-link">
+            <div class="sidebar-user">
+
+
+                <div class="sidebar-user-avatar">
+
+                    {{ current_user.name[0]|upper }}
+
+                </div>
+
+
+                <div class="sidebar-user-info">
+
+                    <strong>
+                        {{ current_user.name }}
+                    </strong>
+
+                    <small>
+                        {{ current_user.role|capitalize }}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- Logout -->
+
+            <a
+                href="{{ url_for('auth.logout') }}"
+                class="nav-item"
+            >
 
                 <i class="bi bi-box-arrow-right"></i>
 
-                <span>Logout</span>
+                <span>
+                    Logout
+                </span>
 
             </a>
 
@@ -135,35 +354,66 @@
     </aside>
 
 
-    <!-- MAIN -->
-    <main class="main-content">
 
-        <!-- TOP BAR -->
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container-fluid pt-3" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
         <header class="topbar">
 
+
             <div>
+
                 <h2>
-                    {% block page_heading %}
-                    Dashboard
-                    {% endblock %}
+                    Faculty Appointment System
                 </h2>
+
             </div>
+
 
             <div class="topbar-right">
 
-                <button class="icon-button">
-                    <i class="bi bi-bell"></i>
-                </button>
+
+                <!-- User -->
 
                 <div class="profile-mini">
 
-                    <div class="avatar">
-                        {{ current_user.name[0]|upper }}
+                    <div>
+
+                        <strong>
+                            {{ current_user.name }}
+                        </strong>
+
+                        <small>
+                            {{ current_user.role|capitalize }}
+                        </small>
+
                     </div>
 
-                    <div>
-                        <strong>{{ current_user.name }}</strong>
-                        <small>{{ current_user.role|capitalize }}</small>
+
+                    <div class="avatar">
+
+                        {{ current_user.name[0]|upper }}
+
                     </div>
 
                 </div>
@@ -173,52 +423,53 @@
         </header>
 
 
-        <!-- FLASH MESSAGES -->
-        <div class="container-fluid px-0">
 
-            {% with messages = get_flashed_messages() %}
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
 
-                {% if messages %}
+        {% block content %}
+        {% endblock %}
 
-                    {% for message in messages %}
-
-                    <div class="alert custom-alert mt-3">
-                        <i class="bi bi-info-circle"></i>
-                        {{ message }}
-                    </div>
-
-                    {% endfor %}
-
-                {% endif %}
-
-            {% endwith %}
-
-        </div>
-
-
-        <!-- PAGE CONTENT -->
-        <div class="page-container">
-
-            {% block content %}
-            {% endblock %}
-
-        </div>
 
     </main>
 
 </div>
 
+
 {% else %}
+
+
+<!-- =========================================================
+     AUTHENTICATION PAGES
+========================================================== -->
 
 {% block auth_content %}
 {% endblock %}
 
+
 {% endif %}
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<!-- Bootstrap JavaScript -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+<!-- Project JavaScript -->
+
+<script
+    src="{{ url_for('static', filename='js/script.js') }}"
+></script>
+
+
+{% block extra_js %}
+{% endblock %}
+
 
 </body>
+
 </html>

@@ -1,8 +1,6 @@
-import uuid
-
 from models import db
 from datetime import datetime
-
+import uuid
 
 
 class Appointment(db.Model):
@@ -20,24 +18,9 @@ class Appointment(db.Model):
         nullable=False
     )
 
-    faculty_id = db.Column(
+    slot_id = db.Column(
         db.String(36),
-        db.ForeignKey("faculty.id"),
-        nullable=False
-    )
-
-    date = db.Column(
-        db.Date,
-        nullable=False
-    )
-
-    start_time = db.Column(
-        db.Time,
-        nullable=False
-    )
-
-    end_time = db.Column(
-        db.Time,
+        db.ForeignKey("appointment_slots.id"),
         nullable=False
     )
 
@@ -48,20 +31,31 @@ class Appointment(db.Model):
 
     status = db.Column(
         db.String(20),
-        default="pending"
+        default="pending",
+        nullable=False
     )
 
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     student = db.relationship(
         "Student",
-        backref="appointments"
+        backref=db.backref(
+            "appointments",
+            lazy=True
+        )
     )
 
-    faculty = db.relationship(
-        "Faculty",
-        backref="appointments"
+    slot = db.relationship(
+        "AppointmentSlot",
+        backref=db.backref(
+            "appointments",
+            lazy=True
+        )
     )
+
+    def __repr__(self):
+        return f"<Appointment {self.id}>"

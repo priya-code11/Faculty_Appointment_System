@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Appointment Portal | Indus University</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --accent-blue: #2563eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Glassmorphism Navbar */
+        .landing-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 24px 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        .portal-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: #ffffff;
+            color: #000000;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        /* Hero Section with Campus Backdrop */
+        .hero-banner {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            background: url("{{ url_for('static', filename='images/campus.png') }}") center center / cover no-repeat;
+            color: #ffffff;
+            padding: 120px 0 80px;
+        }
+
+        /* Deep Gradient Overlay */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg, 
+                rgba(15, 23, 42, 0.92) 0%, 
+                rgba(15, 23, 42, 0.78) 50%, 
+                rgba(0, 0, 0, 0.75) 100%
+            );
+            backdrop-filter: blur(2px);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .institution-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 7px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 22px;
+            color: #f1f5f9;
+        }
+
+        .hero-title {
+            font-size: 50px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            max-width: 580px;
+            margin-bottom: 34px;
+        }
+
+        /* Glass Login/CTA Card */
+        .portal-access-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            color: #0f172a;
+        }
+
+        .btn-black {
+            background: #000000;
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 13px 20px;
+            transition: all 0.2s ease;
+            border: 1px solid #000000;
+            text-decoration: none;
+        }
+
+        .btn-black:hover {
+            background: #1e293b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1e293b;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 13px 20px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline-custom:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        /* Feature Pillars */
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 28px;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="landing-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('home') }}" class="portal-brand">
+                <span class="brand-badge"><i class="bi bi-mortarboard-fill"></i></span>
+                <div>
+                    <div>Indus University</div>
+                    <small style="font-size: 11px; font-weight: 400; color: #94a3b8; display: block;">Faculty Appointment Portal</small>
+                </div>
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-outline-light px-3 py-2 fw-semibold">Sign In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-light px-3 py-2 fw-semibold text-dark">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner with Campus Image -->
+    <section class="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <div class="institution-tag">
+                        <i class="bi bi-geo-alt-fill text-danger"></i> Official Campus Academic Scheduling
+                    </div>
+                    <h1 class="hero-title">
+                        Connect with Faculty.<br>Streamline Academic Guidance.
+                    </h1>
+                    <p class="hero-description">
+                        Seamlessly schedule 1-on-1 consultations, project discussions, and doubt-clearing sessions based on real-time timetable availability.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-light text-dark fw-bold px-4 py-3 rounded-3 shadow-sm">
+                            <i class="bi bi-person-plus-fill me-2"></i>Create Student Account
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light px-4 py-3 rounded-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Faculty & Staff Sign In
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Access Quick Card -->
+                <div class="col-lg-5">
+                    <div class="portal-access-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-black text-white p-2 rounded-3">
+                                <i class="bi bi-calendar-check fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Academic Portal</h5>
+                                <small class="text-muted">Indus University Scheduling</small>
+                            </div>
+                        </div>
+                        <hr class="my-3 text-muted">
+                        <p class="small text-muted mb-4">
+                            Log in to view faculty office hours, reserve consultation periods, and track appointment approvals.
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-black text-center">
+                                Log In to Your Portal
+                            </a>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-custom text-center">
+                                New Registration
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Highlights Section -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h6 class="text-uppercase fw-bold text-muted small" style="letter-spacing: 1px;">Smart Scheduling Workflow</h6>
+                <h3 class="fw-bold">Designed for Students & Faculty</h3>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon-box">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Timetable Sync</h5>
+                        <p class="text-muted small mb-0">
+                            Available appointment slots are automatically derived from weekly teaching periods without double-booking.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon-box">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Faculty Discretion</h5>
+                        <p class="text-muted small mb-0">
+                            Professors can review student queries in advance, accept or reject requests, and toggle availability status on demand.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon-box">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Real-Time Status</h5>
+                        <p class="text-muted small mb-0">
+                            Instant tracking for students from pending request to acceptance, slot full notifications, and cancellation handling.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Academic Footer -->
+    <footer>
+        <div class="container text-center">
+            <p class="mb-1 text-white fw-semibold">Indus University &bull; Faculty Appointment System</p>
+            <p class="mb-0 text-muted small">&copy; 2026 Indus University. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
