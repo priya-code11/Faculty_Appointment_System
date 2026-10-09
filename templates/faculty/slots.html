@@ -1,184 +1,248 @@
 {% extends "base.html" %}
 
+{% block title %}Appointment Slots - Faculty{% endblock %}
+
+{% block extra_css %}
+<style>
+.slot-metric-card {
+    background: #ffffff;
+    border: 1px solid #eef0f3;
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+.slot-metric-num {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111111;
+    margin: 4px 0 0 0;
+}
+.capacity-progress {
+    height: 6px;
+    background-color: #f1f3f5;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.capacity-progress-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+.bar-available { background-color: #198754; }
+.bar-warning { background-color: #f59e0b; }
+.bar-full { background-color: #111111; }
+
+.filter-bar {
+    background: #ffffff;
+    border: 1px solid #eef0f3;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-
-<div class="page-header">
-
-    <div>
-        <div class="page-title">
-            Appointment Slots
-        </div>
-
-        <div class="text-muted">
-            Automatically generated from your weekly timetable
-        </div>
-    </div>
-
-    <div>
-
-        {% if faculty.is_available %}
-
-        <span class="availability-badge available">
-            <span class="availability-dot"></span>
-            Available
-        </span>
-
-        {% else %}
-
-        <span class="availability-badge busy">
-            <span class="availability-dot"></span>
-            Busy
-        </span>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-
-{% if not faculty.is_available %}
-
-<div class="alert alert-warning border-0 shadow-sm">
-
-    <strong>You are currently Busy.</strong>
-
-    Students cannot book your appointment slots until you
-    switch your status back to Available.
-
-</div>
-
-{% endif %}
-
-
-<div class="dashboard-card">
-
-    <div class="dashboard-card-header">
-
+<div class="page-container">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h5 class="dashboard-card-title">
-                Upcoming Appointment Slots
-            </h5>
-
-            <p class="text-muted mb-0">
-                Maximum 5 students can book one slot.
-            </p>
+            <h3 class="fw-bold mb-1">Appointment Slots</h3>
+            <p class="text-muted mb-0">Generated automatically from your weekly lecture schedule for the next 14 days.</p>
         </div>
-
+        <div class="d-flex align-items-center gap-2">
+            {% if faculty.is_available %}
+                <span class="availability-badge available">
+                    <span class="availability-dot"></span> Available for Bookings
+                </span>
+            {% else %}
+                <span class="availability-badge busy">
+                    <span class="availability-dot"></span> Busy (Bookings Paused)
+                </span>
+            {% endif %}
+            <a href="{{ url_for('faculty.timetable') }}" class="btn btn-outline-black btn-sm">
+                <i class="bi bi-calendar3 me-1"></i> Edit Timetable
+            </a>
+        </div>
     </div>
 
-
-    {% if slots %}
-
-    <div class="table-responsive">
-
-        <table class="table align-middle mb-0">
-
-            <thead>
-
-                <tr>
-                    <th>Date</th>
-                    <th>Period</th>
-                    <th>Time</th>
-                    <th>Bookings</th>
-                    <th>Status</th>
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for slot in slots %}
-
-                <tr>
-
-                    <td>
-                        <strong>
-                            {{ slot.date.strftime('%d %b %Y') }}
-                        </strong>
-                    </td>
-
-
-                    <td>
-                        {{ slot.period.name }}
-                    </td>
-
-
-                    <td>
-
-                        {{ slot.period.start_time.strftime('%I:%M %p') }}
-                        -
-                        {{ slot.period.end_time.strftime('%I:%M %p') }}
-
-                    </td>
-
-
-                    <td>
-
-                        <strong>
-                            {{ slot.booked_count }}/{{ slot.capacity }}
-                        </strong>
-
-                    </td>
-
-
-                    <td>
-
-                        {% if slot.is_full %}
-
-                        <span class="badge bg-dark">
-                            Full
-                        </span>
-
-                        {% elif not faculty.is_available %}
-
-                        <span class="badge bg-secondary">
-                            Busy
-                        </span>
-
-                        {% else %}
-
-                        <span class="badge bg-success">
-                            Available
-                        </span>
-
-                        {% endif %}
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
+    {% if not faculty.is_available %}
+    <div class="alert alert-warning border-0 rounded-3 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>You are currently marked as Busy.</strong> Students cannot book your available slots until you toggle your status back to Available on your timetable page.
     </div>
-
-    {% else %}
-
-    <div class="empty-state">
-
-        <h5>No appointment slots found</h5>
-
-        <p>
-            Add your weekly lectures first. The system will
-            automatically calculate free periods.
-        </p>
-
-        <a
-            href="{{ url_for('faculty.timetable') }}"
-            class="btn btn-black"
-        >
-            Manage Timetable
-        </a>
-
-    </div>
-
     {% endif %}
 
-</div>
+    <!-- Metrics Row -->
+    {% set total_slots = slots|length %}
+    {% set total_capacity = slots|sum(attribute='capacity') %}
+    {% set total_booked = slots|sum(attribute='booked_count') %}
+    {% set full_slots = slots|selectattr('is_full', 'equalto', True)|list|length %}
 
+    <div class="row g-3 mb-4">
+    <!-- Filter Toolbar -->
+    <div class="filter-bar">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="slotSearch" 
+                        class="form-control border-start-0 ps-0" 
+                        placeholder="Search by day, date, or period..."
+                        onkeyup="filterSlots()"
+                    >
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select id="statusFilter" class="form-select form-select-sm" onchange="filterSlots()">
+                    <option value="all">All Slot Statuses</option>
+                    <option value="available">Available (Has Open Seats)</option>
+                    <option value="booked">Booked (Has Reservations)</option>
+                    <option value="full">Full Only</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-md-end text-muted small" id="matchCounter">
+                Showing {{ total_slots }} slots
+            </div>
+        </div>
+    </div>
+
+    <!-- Slots Table Card -->
+    <div class="dashboard-card mt-0">
+        {% if slots %}
+        <div class="table-container">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Period</th>
+                        <th>Time Window</th>
+                        <th>Bookings & Capacity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="slotTableBody">
+                    {% for slot in slots %}
+                    {% set percent = (slot.booked_count / slot.capacity * 100)|round|int %}
+                    {% set status_slug = 'full' if slot.is_full else ('booked' if slot.booked_count > 0 else 'available') %}
+                    
+                    <tr class="slot-row" 
+                        data-search="{{ slot.date.strftime('%d %b %Y %A')|lower }} {{ slot.period.name|lower }}"
+                        data-status="{{ status_slug }}">
+                        
+                        <!-- Date -->
+                        <td>
+                            <strong class="d-block">{{ slot.date.strftime('%d %b %Y') }}</strong>
+                            <small class="text-muted">{{ slot.date.strftime('%A') }}</small>
+                        </td>
+
+                        <!-- Period Name -->
+                        <td>
+                            <span class="fw-semibold">{{ slot.period.name }}</span>
+                        </td>
+
+                        <!-- Time -->
+                        <td>
+                            <span class="text-dark">
+                                {{ slot.period.start_time.strftime('%I:%M %p') }} - {{ slot.period.end_time.strftime('%I:%M %p') }}
+                            </span>
+                        </td>
+
+                        <!-- Capacity / Occupancy Bar -->
+                        <td style="min-width: 170px;">
+                            <div class="d-flex justify-content-between small fw-semibold mb-1">
+                                <span>{{ slot.booked_count }} / {{ slot.capacity }} Reserved</span>
+                                <span class="text-muted">{{ percent }}%</span>
+                            </div>
+                            <div class="capacity-progress">
+                                <div class="capacity-progress-bar 
+                                    {% if slot.is_full %}bar-full
+                                    {% elif percent >= 60 %}bar-warning
+                                    {% else %}bar-available{% endif %}" 
+                                    style="width: {{ percent }}%;">
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td>
+                            {% if slot.is_full %}
+                                <span class="badge bg-dark">Full</span>
+                            {% elif not faculty.is_available %}
+                                <span class="badge bg-secondary">Busy</span>
+                            {% elif slot.booked_count > 0 %}
+                                <span class="badge bg-warning text-dark">{{ slot.capacity - slot.booked_count }} left</span>
+                            {% else %}
+                                <span class="badge bg-success">Available</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noSlotMatches" class="text-center py-5 d-none">
+            <i class="bi bi-funnel fs-2 text-muted"></i>
+            <h6 class="mt-2 text-muted">No slots match your search or filter criteria.</h6>
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <i class="bi bi-calendar-x fs-1 text-muted"></i>
+            <h5 class="mt-3">No appointment slots found</h5>
+            <p class="text-muted">
+                Make sure periods exist in the system and your weekly lectures are configured. Any period without a lecture will automatically generate an appointment slot.
+            </p>
+            <a href="{{ url_for('faculty.timetable') }}" class="btn btn-black mt-2">
+                Manage Timetable
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterSlots() {
+    const search = document.getElementById("slotSearch").value.trim().toLowerCase();
+    const status = document.getElementById("statusFilter").value;
+    const rows = document.querySelectorAll(".slot-row");
+    let matchCount = 0;
+
+    rows.forEach(row => {
+        const text = row.getAttribute("data-search") || "";
+        const rowStatus = row.getAttribute("data-status") || "";
+
+        const matchesSearch = !search || text.includes(search);
+        const matchesStatus = (status === "all") ||
+                              (status === "full" && rowStatus === "full") ||
+                              (status === "booked" && (rowStatus === "booked" || rowStatus === "full")) ||
+                              (status === "available" && rowStatus !== "full");
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = "";
+            matchCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    document.getElementById("matchCounter").innerText = `Showing ${matchCount} of ${rows.length} slots`;
+
+    const emptyMsg = document.getElementById("noSlotMatches");
+    if (emptyMsg) {
+        if (matchCount === 0 && rows.length > 0) {
+            emptyMsg.classList.remove("d-none");
+        } else {
+            emptyMsg.classList.add("d-none");
+        }
+    }
+}
+</script>
 {% endblock %}

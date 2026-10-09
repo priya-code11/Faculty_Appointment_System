@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block title %}Book Appointment - {{ faculty.user.name }}{% endblock %}
 
 {% block extra_css %}
@@ -112,8 +113,7 @@
 }
 
 /* Disabled & Past Dates */
-.cal-day-num.disabled,
-.cal-day-num:disabled {
+.cal-day-num.disabled, .cal-day-num:disabled {
     color: #d1d5db;
     cursor: not-allowed;
     background: transparent;
@@ -149,10 +149,9 @@
     </div>
 
     <div class="row g-4 align-items-start">
-        <!-- LEFT COLUMN: Clean Minimalist Calendar Widget -->
+        <!-- LEFT COLUMN: Minimalist Calendar Widget -->
         <div class="col-lg-5 col-md-6">
             <div class="calendar-widget-card">
-                <!-- Top Header: e.g. 10 Mar, 23 Wednesday -->
                 <div class="cal-top-header">
                     <div class="cal-selected-display">
                         <strong id="calHeaderDate">{{ today.strftime('%d %b, %y') }}</strong>
@@ -185,7 +184,6 @@
                             {% set is_past = (day < today) %}
                             {% set is_out_of_range = (day > max_bookable_date) %}
                             {% set is_disabled = is_past or is_out_of_range or not is_current_month %}
-
                             <div class="cal-cell">
                                 {% if is_current_month %}
                                     <button 
@@ -240,9 +238,9 @@
                                             <i class="bi bi-clock me-1"></i>
                                             {{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}
                                         </div>
-
                                         {% if faculty.is_available and remaining > 0 %}
-                                            <form method="POST" action="{{ url_for('student.book_appointment', slot_id=slot.id) }}">
+                                            <form method="POST" action="{{ url_for('student.book_appointment', faculty_id=faculty.id) }}">
+                                                <input type="hidden" name="slot_id" value="{{ slot.id }}">
                                                 <div class="mb-3">
                                                     <label class="form-label small text-muted" for="reason-{{ slot.id }}">Reason for booking</label>
                                                     <textarea id="reason-{{ slot.id }}" name="reason" class="form-control form-control-sm" rows="2" maxlength="500" placeholder="State reason..." required></textarea>
@@ -286,7 +284,7 @@ function pickDate(dateStr, btnElement) {
     document.querySelectorAll('.cal-day-num').forEach(btn => btn.classList.remove('active'));
     btnElement.classList.add('active');
 
-    // 2. Update widget header (e.g., 06 Oct, 26 Tuesday)
+    // 2. Update widget header
     document.getElementById('calHeaderDate').innerText = btnElement.getAttribute('data-formatted-date');
     document.getElementById('calHeaderDay').innerText = btnElement.getAttribute('data-formatted-day');
 

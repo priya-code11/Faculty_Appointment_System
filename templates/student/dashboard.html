@@ -1,9 +1,132 @@
 {% extends "base.html" %}
+
 {% block title %}Student Dashboard{% endblock %}
+
 {% block content %}
-<div class="welcome-card"><h3>Welcome back, {{ user.name }}!</h3><p class="text-muted">Book appointments, manage your schedule and connect with faculty.</p></div>
-<div class="row g-3 mb-4"><div class="col-md-3"><div class="stat-card"><h6>Upcoming</h6><h2>{{ appointments|selectattr("status", "equalto", "accepted")|list|length }}</h2></div></div><div class="col-md-3"><div class="stat-card"><h6>Pending</h6><h2>{{ appointments|selectattr("status", "equalto", "pending")|list|length }}</h2></div></div><div class="col-md-3"><div class="stat-card"><h6>Completed</h6><h2>{{ appointments|selectattr("status", "equalto", "completed")|list|length }}</h2></div></div><div class="col-md-3"><div class="stat-card"><h6>Total</h6><h2>{{ appointments|length }}</h2></div></div></div>
-<div class="dashboard-card"><div class="dashboard-card-header"><h5>Recent Appointments</h5><a href="{{ url_for('student.appointments') }}" class="btn btn-sm btn-outline-black">View All</a></div><div class="table-container"><table class="table"><thead><tr><th>Faculty</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th></tr></thead><tbody>
-{% for appointment in appointments[:5] %}{% set slot = appointment.slot %}<tr><td>{{ slot.faculty.user.name }}<br><small>{{ slot.faculty.department }}</small></td><td>{{ slot.date }}</td><td>{{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}</td><td>{{ appointment.reason }}</td><td><span class="status status-{{ appointment.status }}">{{ appointment.status|capitalize }}</span></td></tr>{% else %}<tr><td colspan="5" class="text-center py-5">No appointments yet.</td></tr>{% endfor %}
-</tbody></table></div></div><a href="{{ url_for('student.faculty_list') }}" class="btn btn-black mt-3">Browse Faculty</a>
+<div class="page-container">
+    <!-- Welcome Header -->
+    <div class="welcome-card mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Welcome back, {{ current_user.name }}!</h3>
+            <p class="text-muted mb-0">Book appointments, manage your schedule, and connect with faculty members.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge bg-light text-dark border px-3 py-2">
+                Enrollment: {{ student.enrollment_no }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Stat Metrics Row -->
+    {% set upcoming_count = appointments|selectattr("status", "equalto", "accepted")|list|length %}
+    {% set pending_count = appointments|selectattr("status", "equalto", "pending")|list|length %}
+    {% set completed_count = appointments|selectattr("status", "equalto", "completed")|list|length %}
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <h6>Upcoming Approved</h6>
+                <h2 class="text-success">{{ upcoming_count }}</h2>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <h6>Pending Requests</h6>
+                <h2 class="text-warning">{{ pending_count }}</h2>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <h6>Completed</h6>
+                <h2 class="text-primary">{{ completed_count }}</h2>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <h6>Total Bookings</h6>
+                <h2>{{ appointments|length }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments Table -->
+    <div class="dashboard-card mt-0">
+        <div class="dashboard-card-header d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0">Recent Appointments</h5>
+                <small class="text-muted">Showing your last 5 appointment requests</small>
+            </div>
+            <a href="{{ url_for('student.appointments') }}" class="btn btn-sm btn-outline-black">
+                View All Appointments
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Faculty</th>
+                        <th>Department</th>
+                        <th>Date</th>
+                        <th>Time Window</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments[:5] %}
+                    {% set slot = appointment.slot %}
+                    <tr>
+                        <td>
+                            <strong>{{ slot.faculty.user.name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ slot.faculty.designation }}</small>
+                        </td>
+                        <td>{{ slot.faculty.department }}</td>
+                        <td>
+                            <strong>{{ slot.date.strftime("%d %b %Y") }}</strong>
+                            <br>
+                            <small class="text-muted">{{ slot.date.strftime("%A") }}</small>
+                        </td>
+                        <td>
+                            {{ slot.period.name }}
+                            <br>
+                            <small class="text-muted">
+                                {{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}
+                            </small>
+                        </td>
+                        <td style="max-width: 240px;" class="text-truncate" title="{{ appointment.reason }}">
+                            {{ appointment.reason }}
+                        </td>
+                        <td>
+                            <span class="status status-{{ appointment.status }}">
+                                {{ appointment.status|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                            <h6 class="mt-3 text-muted">No appointments booked yet.</h6>
+                            <a href="{{ url_for('student.faculty_list') }}" class="btn btn-sm btn-black mt-2">
+                                Browse Faculty to Book
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Action Footer -->
+    <div class="mt-4 d-flex gap-2">
+        <a href="{{ url_for('student.faculty_list') }}" class="btn btn-black">
+            <i class="bi bi-search me-1"></i> Browse Faculty
+        </a>
+        <a href="{{ url_for('student.appointments') }}" class="btn btn-outline-black">
+            <i class="bi bi-calendar-event me-1"></i> View Full History
+        </a>
+    </div>
+</div>
 {% endblock %}

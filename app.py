@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, Blueprint, redirect, url_for, flash
 from config import Config
 from models import db, init_models
 from flask_login import LoginManager
@@ -38,7 +38,7 @@ def create_app():
     
     @app.route("/")
     def home():
-        return "Faculty Appointment System is running!"
+        return render_template("landing.html")
 
     return app
 
