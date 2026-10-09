@@ -51,38 +51,38 @@ An academic scheduling portal built with Flask, PostgreSQL, and Bootstrap 5. The
 ```text
 Faculty_Appointment_System/
 │
-├── app.py                      # Application factory and entry point[cite: 1]
-├── config.py                   # Environment configuration[cite: 1]
-├── requirements.txt            # Python dependencies[cite: 1]
-├── .env                        # Database connection string and secrets[cite: 1]
+├── app.py                      # Application factory and entry point
+├── config.py                   # Environment configuration
+├── requirements.txt            # Python dependencies
+├── .env                        # Database connection string and secrets
 │
-├── models/                     # SQLAlchemy data models[cite: 1]
-│   ├── appointment.py          # Student appointment reservations[cite: 1]
-│   ├── appointment_slot.py     # Generated consultation slots[cite: 1]
-│   ├── faculty.py              # Faculty profile[cite: 1]
-│   ├── faculty_timetable.py    # Weekly lecture schedules[cite: 1]
-│   ├── schedule_period.py      # Master campus time slots[cite: 1]
-│   ├── student.py              # Student profile[cite: 1]
-│   └── user.py                 # Core user accounts and authentication[cite: 1]
+├── models/                     # SQLAlchemy data models
+│   ├── appointment.py          # Student appointment reservations
+│   ├── appointment_slot.py     # Generated consultation slots
+│   ├── faculty.py              # Faculty profile
+│   ├── faculty_timetable.py    # Weekly lecture schedules
+│   ├── schedule_period.py      # Master campus time slots
+│   ├── student.py              # Student profile
+│   └── user.py                 # Core user accounts and authentication
 │
-├── routes/                     # Blueprint route handlers[cite: 1]
-│   ├── admin.py                # Admin dashboard and user management[cite: 1]
-│   ├── auth.py                 # Login, registration, and logout[cite: 1]
-│   ├── faculty.py              # Timetable, availability, and requests[cite: 1]
-│   └── student.py              # Slot browsing, booking, and history[cite: 1]
+├── routes/                     # Blueprint route handlers
+│   ├── admin.py                # Admin dashboard and user management
+│   ├── auth.py                 # Login, registration, and logout
+│   ├── faculty.py              # Timetable, availability, and requests
+│   └── student.py              # Slot browsing, booking, and history
 │
-├── utils/                      # Helper modules[cite: 1]
-│   └── slot_generator.py       # Automated slot generation algorithm[cite: 1]
+├── utils/                      # Helper modules
+│   └── slot_generator.py       # Automated slot generation algorithm
 │
-├── static/                     # CSS, JavaScript, and static assets[cite: 1]
-│   ├── css/style.css           # Custom stylesheets[cite: 1]
-│   └── js/script.js            # UI interactions and confirmation handlers[cite: 1]
+├── static/                     # CSS, JavaScript, and static assets
+│   ├── css/style.css           # Custom stylesheets
+│   └── js/script.js            # UI interactions and confirmation handlers
 │
-└── templates/                  # Jinja2 HTML templates[cite: 1]
-    ├── admin/                  # Admin views[cite: 1]
-    ├── auth/                   # Authentication views[cite: 1]
-    ├── faculty/                # Faculty views[cite: 1]
-    └── student/                # Student views[cite: 1]
+└── templates/                  # Jinja2 HTML templates
+    ├── admin/                  # Admin views
+    ├── auth/                   # Authentication views
+    ├── faculty/                # Faculty views
+    └── student/                # Student views
 
 ```
 
