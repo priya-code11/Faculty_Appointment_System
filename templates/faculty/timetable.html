@@ -57,26 +57,15 @@ Weekly Timetable
                     >
                         Set Not Available
                     </button>
-
                 </form>
-
             {% else %}
-
                 <span class="availability-badge busy">
-
                     <span class="availability-dot"></span>
-
                     Not Available
-
                 </span>
 
 
-                <form
-                    method="POST"
-                    action="{{ url_for('faculty.toggle_availability') }}"
-                    class="m-0"
-                >
-
+                <form method="POST" action="{{ url_for('faculty.toggle_availability') }}" class="m-0">
                     <button
                         type="submit"
                         class="btn-black"
@@ -172,90 +161,38 @@ Weekly Timetable
     ====================================================== -->
 
     <div class="lecture-form-card">
-
         <div class="lecture-form-title">
-
-            <h5>
-                Add Lecture
-            </h5>
-
+            <h5>Add Lecture</h5>
             <p>
                 Add your regular weekly lectures to calculate
                 appointment availability automatically.
             </p>
-
         </div>
-
-
-        <form
-            method="POST"
-            action="{{ url_for('faculty.add_timetable') }}"
-        >
-
+        <form method="POST" action="{{ url_for('faculty.add_timetable') }}">
             <div class="row g-3 align-items-end">
-
-
-                <!-- Day -->
-
                 <div class="col-md-4">
-
-                    <label
-                        for="day_of_week"
-                        class="form-label"
-                    >
+                    <label for="day_of_week" class="form-label">
                         Day
                     </label>
-
-                    <select
-                        name="day_of_week"
-                        id="day_of_week"
-                        class="form-select"
-                        required
-                    >
-
+                    <select name="day_of_week" id="day_of_week" class="form-select" required>
                         <option value="" selected disabled>
                             Select Day
                         </option>
-
                         {% for day_number, day_name in days %}
-
-                            <option value="{{ day_number }}">
-                                {{ day_name }}
-                            </option>
-
+                            <option value="{{ day_number }}">{{ day_name }}</option>
                         {% endfor %}
-
                     </select>
-
                 </div>
-
-
-                <!-- Period -->
-
                 <div class="col-md-4">
-
-                    <label
-                        for="period_id"
-                        class="form-label"
-                    >
+                    <label for="period_id" class="form-label">
                         Period
                     </label>
-
-                    <select
-                        name="period_id"
-                        id="period_id"
-                        class="form-select"
-                        required
-                    >
-
+                    <select name="period_id" id="period_id" class="form-select" required>
                         <option value="" selected disabled>
                             Select Period
                         </option>
-
                         {% for period in periods %}
-
                             <option value="{{ period.id }}">
-
                                 {{ period.name }}
 
                                 —

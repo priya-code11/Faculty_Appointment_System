@@ -1,35 +1,22 @@
 {% extends "base.html" %}
-
 {% block title %}Students{% endblock %}
-
 {% block page_heading %}
 Students
 {% endblock %}
-
 {% block content %}
-
 <div class="dashboard-card">
-
     <div class="dashboard-card-header">
-
         <h5>
             <i class="bi bi-mortarboard me-2"></i>
             Registered Students
         </h5>
-
         <span class="text-muted">
             {{ students|length }} Students
         </span>
-
     </div>
-
-
     <div class="table-container">
-
         <table class="table">
-
             <thead>
-
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
@@ -37,25 +24,18 @@ Students
                     <th>Department</th>
                     <th>Semester</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
             {% for student in students %}
-
                 <tr>
-
                     <td>
                         <strong>
                             {{ student.user.name }}
                         </strong>
                     </td>
-
                     <td>
                         {{ student.user.email }}
                     </td>
-
                     <td>
                         {{ student.enrollment_no }}
                     </td>

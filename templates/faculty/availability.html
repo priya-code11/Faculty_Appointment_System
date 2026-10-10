@@ -5,68 +5,35 @@
 {% block page_heading %}
 Availability
 {% endblock %}
-
 {% block content %}
-
 <div class="row g-4">
-
     <!-- ADD SLOT -->
-
     <div class="col-lg-5">
-
         <div class="form-card">
-
             <h4 class="mb-1">
                 Add Availability
             </h4>
-
             <p class="text-muted">
                 Set a date and time when students can book an appointment.
             </p>
-
-
             <form method="POST">
-
                 <div class="mb-3">
-
                     <label class="form-label">
                         Date
                     </label>
-
-                    <input
-                        type="date"
-                        name="date"
-                        class="form-control"
-                        required
-                    >
-
+                    <input type="date" name="date" class="form-control" required>
                 </div>
-
-
                 <div class="row">
-
                     <div class="col">
-
                         <label class="form-label">
                             Start Time
                         </label>
-
-                        <input
-                            type="time"
-                            name="start_time"
-                            class="form-control"
-                            required
-                        >
-
+                        <input type="time" name="start_time" class="form-control" required>
                     </div>
-
-
                     <div class="col">
-
                         <label class="form-label">
                             End Time
                         </label>
-
                         <input
                             type="time"
                             name="end_time"

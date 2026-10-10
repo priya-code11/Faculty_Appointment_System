@@ -1,9 +1,51 @@
 {% extends "base.html" %}
 {% block title %}My Appointments{% endblock %}
 {% block content %}
-<div class="dashboard-card"><div class="dashboard-card-header"><h5>Appointment History</h5></div><div class="table-container"><table class="table">
-<thead><tr><th>Faculty</th><th>Date</th><th>Time</th><th>Reason</th><th>Capacity</th><th>Status</th><th>Action</th></tr></thead><tbody>
-{% for appointment in appointments %}{% set slot = appointment.slot %}<tr><td><strong>{{ slot.faculty.user.name }}</strong><br><small>{{ slot.faculty.department }}</small></td><td>{{ slot.date.strftime("%d %b %Y") }}</td><td>{{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}</td><td>{{ appointment.reason }}</td><td>{{ slot.booked_count }}/{{ slot.capacity }}</td><td><span class="status status-{{ appointment.status }}">{{ appointment.status|capitalize }}</span></td>
-<td>{% if appointment.status in ["pending", "accepted"] and (slot.date > current_date.date() or (slot.date == current_date.date() and slot.period.start_time > current_date.time())) %}<form method="POST" action="{{ url_for('student.cancel_appointment', appointment_id=appointment.id) }}"><button class="btn btn-sm btn-outline-black" type="submit" onclick="return confirm('Cancel this appointment?')">Cancel</button></form>{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
-{% else %}<tr><td colspan="7" class="text-center py-5">No appointments found.</td></tr>{% endfor %}
-</tbody></table></div></div>{% endblock %}
+<div class="dashboard-card">
+    <div class="dashboard-card-header"><h5>Appointment History</h5></div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Faculty</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                    {% set slot = appointment.slot %}
+                    <tr>
+                        <td>
+                            <strong>{{ slot.faculty.user.name }}</strong>
+                            <br>
+                            <small>{{ slot.faculty.department }}</small>
+                        </td>
+                        <td>{{ slot.date.strftime("%d %b %Y") }}</td>
+                        <td>{{ slot.period.start_time.strftime("%I:%M %p") }} - {{ slot.period.end_time.strftime("%I:%M %p") }}</td>
+                        <td>{{ appointment.reason }}</td>
+                        <td>{{ slot.booked_count }}/{{ slot.capacity }}</td>
+                        <td><span class="status status-{{ appointment.status }}">{{ appointment.status|capitalize }}</span></td>
+                        <td>
+                            {% if appointment.status in ["pending", "accepted"] and (slot.date > current_date.date() or (slot.date == current_date.date() and slot.period.start_time > current_date.time())) %}
+                                <form method="POST" action="{{ url_for('student.cancel_appointment', appointment_id=appointment.id) }}">
+                                    <button class="btn btn-sm btn-outline-black" type="submit" onclick="return confirm('Cancel this appointment?')">Cancel</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">No appointments found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>{% endblock %}

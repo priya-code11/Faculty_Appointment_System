@@ -255,36 +255,25 @@ textarea {
 /* =========================================================
    MAIN CONTENT
 ========================================================= */
-
 .main-content {
     margin-left: 240px;
-
     width: calc(100% - 240px);
-
     min-height: 100vh;
 }
-
 
 /* =========================================================
    TOPBAR
 ========================================================= */
-
 .topbar {
     height: 74px;
-
     background: #ffffff;
-
     border-bottom: 1px solid #e5e5e5;
-
     padding: 0 30px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     position: sticky;
     top: 0;
-
     z-index: 900;
 }
 
@@ -730,7 +719,6 @@ textarea {
 
 .timetable {
     width: 100%;
-
     min-width: 950px;
 
     margin: 0;
@@ -1261,48 +1249,35 @@ textarea {
 ========================================================= */
 
 @media (max-width: 1100px) {
-
     .sidebar {
         width: 220px;
     }
-
     .main-content {
         margin-left: 220px;
-
         width: calc(100% - 220px);
     }
-
     .page-container {
         padding: 24px;
     }
-
     .timetable {
         min-width: 900px;
     }
 }
-
-
 @media (max-width: 900px) {
-
     .sidebar {
         width: 75px;
     }
-
     .brand {
         justify-content: center;
-
         padding-left: 0;
         padding-right: 0;
     }
-
     .brand div:not(.brand-icon) {
         display: none;
     }
-
     .sidebar-nav-label {
         display: none;
     }
-
     .nav-item {
         justify-content: center;
 
