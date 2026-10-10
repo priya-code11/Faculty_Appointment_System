@@ -71,8 +71,9 @@ Faculty_Appointment_System/
 │   ├── faculty.py              # Timetable, availability, and requests
 │   └── student.py              # Slot browsing, booking, and history
 │
-├── utils/                      # Helper modules
-│   └── slot_generator.py       # Automated slot generation algorithm
+├── utils/                      # Helper modules (Automated slot generation algorithm)
+│   └── slot_generator.py       
+│   └── generate_slots.php      
 │
 ├── static/                     # CSS, JavaScript, and static assets
 │   ├── css/style.css           # Custom stylesheets
